@@ -3,6 +3,7 @@ import axios from "axios";
 import Post from "./Post";
 import { Box, Container } from "@mui/system";
 import PostForm from "./PostForm";
+import { getPosts } from "../API/post";
 
 function Home() {
   const [error, setError] = useState(null);
@@ -28,14 +29,22 @@ function Home() {
   //   }
   // };
 
+  // const refreshPosts = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:8081/api/v1/posts");
+  //     setIsLoaded(true);
+  //     setPostList(response.data.data);
+  //   } catch (error) {
+  //     setIsLoaded(true);
+  //     setError(error);
+  //   }
+  // };
+
   const refreshPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/api/v1/posts");
+      const { data } = await getPosts();
       setIsLoaded(true);
-      setPostList(response.data.data);
-
-      setIsLoaded(true);
-      setError(error);
+      setPostList(data);
     } catch (error) {
       setIsLoaded(true);
       setError(error);
@@ -66,6 +75,7 @@ function Home() {
         <PostForm userId={2} username={"ddd"} refreshPosts={refreshPosts} />
         {postList.map((post) => (
           <Post
+            likes={post.likes}
             postId={post.id}
             userId={post.userId}
             username={post.username}

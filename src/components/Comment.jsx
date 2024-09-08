@@ -1,48 +1,62 @@
-// import { InputAdornment } from "@mui/material";
-// import React from "react";
+import {
+  Avatar,
+  CardContent,
+  InputAdornment,
+  OutlinedInput,
+} from "@mui/material";
+import { display } from "@mui/system";
+import React from "react";
+import { Link } from "react-router-dom";
 
-// function Comment(props) {
-//   const { text, userId, username } = props;
+function Comment(props) {
+  const { commentText, userId, username } = props;
 
-//   return (
-//     <CardContent>
-//       <Typography variant="body2" sx={{ color: "text.secondary" }}>
-//         <OutlinedInput
-//           disabled
-//           id="outlined-adornment-amount"
-//           multiline
-//           inputProps={{ maxLength: 25 }}
-//           fullWidth
-//           value={text}
-//           startAdornment={
-//             <InputAdornment position="start">
-//               <Link to={`/users/${userId}`} style={{ textDecoration: "none" }}>
-//               <Avatar
-//                 sx={{
-//                   background:
-//                     "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-//                   color: "white",
-//                 }}
-//                 aria-label="recipe"
-//               >
-//                 {username.charAt(0).toUpperCase()}
-//               </Avatar>
-//             </Link>
-//             </InputAdornment>
+  return (
+    <CardContent
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        m: 2,
+        maxWidth: { xs: 340, sm: 540, md: 720, lg: 960 },
+      }}
+    >
+      {/* <Typography variant="body2" sx={{ color: "text.secondary" }}> */}
+      <OutlinedInput
+        disabled
+        id="outlined-adornment-amount"
+        multiline
+        inputProps={{ maxLength: 25 }}
+        fullWidth
+        value={commentText}
+        startAdornment={
+          <InputAdornment position="start">
+            <Link to={`/users/${userId}`} style={{ textDecoration: "none" }}>
+              <Avatar
+                sx={{
+                  background:
+                    "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+                  color: "white",
+                }}
+                aria-label="recipe"
+              >
+                {username.charAt(0).toUpperCase()}
+              </Avatar>
+            </Link>
+          </InputAdornment>
+        }
+        sx={{
+          color: "black",
+          background: "white",
+        }}
+      ></OutlinedInput>
+      {/* </Typography> */}
+    </CardContent>
+  );
+}
 
-//           }
-//           sx={{
-//           color: "black",
-//           background: "white",
-//         }}
-//         ></OutlinedInput>
-//         {postText}
-//       </Typography>
-//     </CardContent>
-//   );
-// }
-
-// export default Comment;
+export default Comment;
 
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";

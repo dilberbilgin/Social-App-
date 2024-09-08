@@ -1,3 +1,106 @@
+import {
+  Avatar,
+  Button,
+  CardContent,
+  InputAdornment,
+  OutlinedInput,
+} from "@mui/material";
+import { display } from "@mui/system";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+
+function CommentForm(props) {
+  const { userId, username, postId } = props;
+  const [text, setText] = useState("");
+
+  const saveComment = async () => {
+    try {
+      await axios.post(
+        `http://localhost:8081/api/v1/comments?postId=${postId}`,
+        {
+          postId: postId,
+          userId: userId,
+          commentText: text,
+        }
+      );
+      // refreshPosts();
+    } catch (error) {
+      console.error("Error saving post:", error);
+    }
+  };
+
+  const handleSubmit = () => {
+    saveComment();
+    setText("");
+  };
+
+  const handleChange = (value) => {
+    setText(value);
+  };
+
+  return (
+    <CardContent
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        m: 2,
+        maxWidth: { xs: 340, sm: 540, md: 720, lg: 960 },
+      }}
+    >
+      {/* <Typography variant="body2" sx={{ color: "text.secondary" }}> */}
+      <OutlinedInput
+        id="outlined-adornment-amount"
+        multiline
+        inputProps={{ maxLength: 250 }}
+        fullWidth
+        // value={commentText} burada kendimiz yazabilmeliyiz
+        onChange={(i) => handleChange(i.target.value)}
+        startAdornment={
+          <InputAdornment position="start">
+            <Link to={`/users/${userId}`} style={{ textDecoration: "none" }}>
+              <Avatar
+                sx={{
+                  background:
+                    "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+                  color: "white",
+                }}
+                aria-label="recipe"
+              >
+                {username.charAt(0).toUpperCase()}
+              </Avatar>
+            </Link>
+          </InputAdornment>
+        }
+        endAdornment={
+          <InputAdornment position="end">
+            <Button
+              sx={{
+                background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+                color: "white",
+              }}
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              Comment
+            </Button>
+          </InputAdornment>
+        }
+        value={text}
+        sx={{
+          color: "black",
+          background: "white",
+        }}
+      ></OutlinedInput>
+      {/* </Typography> */}
+    </CardContent>
+  );
+}
+
+export default CommentForm;
+
 // import React, { useState } from "react";
 // import axios from "axios";
 // import { TextField, Button, Box, Snackbar, Alert } from "@mui/material";

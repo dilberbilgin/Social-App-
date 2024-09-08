@@ -2,10 +2,34 @@
 
 // const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
-// // Tüm yorumları alma
 // export const getComments = async () => {
 //   try {
-//     const { data } = await axios.get(`${BASE_URL}/api/v1/comments`);
+//     const { data } = await axios.get(`${BASE_URL}/api/v1/comments`, {
+//       params: { postId },
+//     });
+
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching comments:", error);
+//     throw error;
+//   }
+// };
+
+// export const getCommentsByPostId = async (postId) => {
+//   try {
+//     const { data } = await axios.get(`${BASE_URL}/api/v1/comments`, {
+//       params: { postId },
+//     });
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching comments:", error);
+//     throw error;
+//   }
+// };
+
+// export const getCommentsByPostId = async (postId) => {
+//   try {
+//     const { data } = await axios.get(`${BASE_URL}/comments?postId=${postId}`);
 //     return data;
 //   } catch (error) {
 //     console.error("Error fetching comments:", error);

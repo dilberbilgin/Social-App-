@@ -14,6 +14,14 @@ import { red } from "@mui/material/colors";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
 import { Link } from "react-router-dom";
+import { Container } from "@mui/system";
+import Comment from "./Comment";
+import CommentForm from "./CommentForm";
+import {
+  getLikesForPost,
+  getLikesForPostAndUser,
+  getUserLikes,
+} from "../API/like";
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -30,32 +38,34 @@ const ExpandMore = styled((props) => {
         transform: "rotate(0deg)",
       },
     },
-    {
-      // props: ({ expand }) => !!expand,
-      // style: {
-      //   transform: "rotate(180deg)",
-      // },
-    },
   ],
 }));
 
 function Post(props) {
-  const { userId, username, title, postText, postId } = props;
-  const [expanded, setExpanded] = React.useState(false);
-  const [liked, setLiked] = React.useState(false);
+  const { userId, postId, username, title, postText, likes } = props;
+  const [expanded, setExpanded] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [commentList, setCommentList] = useState([]);
-  const isInitialMounth = useRef(true); // ilk kez mi load ediliyor. yoksa biri commenti tiklayip mi acti
+  const isInitialMount = useRef(true); // ilk kez mi load ediliyor. yoksa biri commenti tiklayip mi acti
+  const [likeCount, setLikeCount] = useState(likes.length);
+  const [likeId, setLikeId] = useState(null);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
     refreshComments();
-    console.log(commentList);
   };
 
   const handleLike = () => {
-    setLiked(!liked);
+    setIsLiked(!isLiked);
+    if (!isLiked) {
+      saveLike(postId, userId);
+      setLikeCount(likeCount + 1);
+    } else {
+      deleteLike(likeId);
+      setLikeCount(likeCount - 1);
+    }
   };
 
   const refreshComments = async () => {
@@ -63,21 +73,63 @@ function Post(props) {
       const response = await axios.get(
         `http://localhost:8081/api/v1/comments?postId=${postId}`
       );
-      setIsLoaded(true);
       setCommentList(response.data.data);
-
       setIsLoaded(true);
-      setError(error);
     } catch (error) {
       setIsLoaded(true);
       setError(error);
     }
   };
 
+  const saveLike = async (postId, userId) => {
+    const { data } = await axios.post("http://localhost:8081/api/v1/likes", {
+      userId,
+      postId,
+    });
+    return data;
+  };
+
+  const deleteLike = async (likeId) => {
+    try {
+      const { data } = await axios.delete(
+        `http://localhost:8081/api/v1/likes/${likeId}`
+      );
+      return data.data;
+    } catch (error) {
+      console.error("Error deleting like:", error);
+      throw error;
+    }
+  };
+
+  const checkLikes = async () => {
+    const likes = await getLikesForPostAndUser(postId, userId);
+    const likeControl = likes.find((like) => like.userId === userId);
+    if (likeControl) {
+      setLikeId(likeControl.id); // Eğer post daha önce beğenilmişse
+      setIsLiked(true); // Kırmızı like butonu
+    }
+    //   if (likeControl != null) setLikeId(likeControl.id);
+    //   setIsLiked(true);
+  };
+
+  // const checkLikes = async () => {
+  //   try {
+  //     const userLikes = await getLikesForPostAndUser(postId, userId);
+  //     const likedPost = userLikes.find((like) => like.postId === postId);
+  //     setIsLiked(!!likedPost);
+  //   } catch (error) {
+  //     console.error("Error checking user likes:", error);
+  //   }
+  // };
+
   useEffect(() => {
-    if (isInitialMounth.current) isInitialMounth.current = false;
+    if (isInitialMount.current) isInitialMount.current = false;
     else refreshComments();
   }, [commentList]);
+
+  useEffect(() => {
+    checkLikes();
+  }, []);
 
   return (
     <div>
@@ -114,8 +166,9 @@ function Post(props) {
         </CardContent>
         <CardActions disableSpacing>
           <IconButton onClick={handleLike} aria-label="add to favorites">
-            <FavoriteIcon style={liked ? { color: "red" } : null} />
+            <FavoriteIcon style={isLiked ? { color: "red" } : null} />
           </IconButton>
+          {likeCount}
 
           <ExpandMore
             expand={expanded}
@@ -127,10 +180,24 @@ function Post(props) {
           </ExpandMore>
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-            {/* <Typography sx={{ marginBottom: 2 }}>Method:</Typography> */}
-            {/* {title} */}
-          </CardContent>
+          <Container fixed>
+            {error
+              ? "error"
+              : isLoaded
+              ? commentList.map((comment) => (
+                  <Comment
+                    userId={2}
+                    username={"USER"}
+                    commentText={comment.commentText}
+                  ></Comment>
+                ))
+              : "Loading"}
+          </Container>
+          <CommentForm
+            userId={2}
+            username={"USER"}
+            postId={postId}
+          ></CommentForm>
         </Collapse>
       </Card>
     </div>
@@ -138,30 +205,3 @@ function Post(props) {
 }
 
 export default Post;
-
-// import React from "react";
-// import { Container, Typography } from "@mui/material";
-// import PostForm from "./PostForm"; // Import the form component
-
-// const Post = () => {
-//   return (
-//     <Container maxWidth="sm">
-//       {/* <Typography
-//         variant="h6"
-//         gutterBottom
-//         sx={{
-//           maxWidth: "sm",
-//           m: 2,
-//           p: 2,
-//           background: "lightGray",
-//           color: "black",
-//         }}
-//       >
-//         Gönderi Oluştur
-//       </Typography> */}
-//       <PostForm /> {/* Include the form component */}
-//     </Container>
-//   );
-// };
-
-// export default Post;
